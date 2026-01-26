@@ -125,7 +125,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     public List<String> getVoieAdministration(){
         List<String> voiesAdminList = new ArrayList<>();
         //cette ligne ci dessous permet la connexion avec la base de donnée
-        SQLiteDatabase db = this.getReadableDatabase(); //connexion a la bd
+        SQLiteDatabase db = this.getReadableDatabase();
         Cursor cursor = db.rawQuery("SELECT DISTINCT UPPER (Voies_dadministration) FROM CIS_bdpm WHERE Voies_dadministration NOT LIKE '%;%' ORDER BY Voies_dadministration",null);
         voiesAdminList.add(PREMIERE_VOIE);
         if (cursor.moveToFirst()){
@@ -139,36 +139,60 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return voiesAdminList;
     }
-    //fonction permettant de lancer la recherche de medicament selon la recherche
-    public List<Medicament> searchMedicaments(String denomination_du_medicament,String forme_pharmaceutique,String titulaires,String denomination_substance, String SpinnerVoieAdminvoie_admin, String SpinnerVoieAdmin){
-        List<Medicament> medicamentList=new ArrayList<>();
-        List<String> selectionArgs= new ArrayList<>();
-        SQLiteDatabase db = this.getReadableDatabase(); //connexion a la bd
-        selectionArgs.add("%" + denomination_du_medicament +"%");
-        selectionArgs.add("%"+ forme_pharmaceutique +"%");
-        selectionArgs.add("%"+ titulaires +"%");
-        selectionArgs.add("%"+ removeAccents(denomination_substance)  +"%");
-        String finSQL="";
+    // fonction permettant de lancer la recherche de médicaments selon les critères
+    public List<Medicament> searchMedicaments(String denomination_du_medicament,String forme_pharmaceutique,String titulaires , String denomination_substance,String voie_admin ){
+        List<Medicament> medicamentList = new ArrayList<>();
+        List<String> selectionArgs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        selectionArgs.add("%" + denomination_du_medicament + "%");
+        selectionArgs.add("%" + forme_pharmaceutique + "%");
+        selectionArgs.add("%" + titulaires + "%");
+        selectionArgs.add("%" + removeAccents(denomination_substance) + "%");
+        String finSQL = "";
 
-        if (!voie_admin.equal(PREMIERE_VOIE)){
-            finSQL=" AND voie_admin LIKE ?";
+        if (!voie_admin.equals(PREMIERE_VOIE)){
+            finSQL = "AND voie_admin LIKE ? ";
             selectionArgs.add(voie_admin);
         }
         String SQLSubstance = "SELECT CODE_CIS FROM CIS_COMPO_bdpm WHERE replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(upper(Denomination_substance), 'Â','A'),'Ä','A'),'À','A'),'É','E'),'Á','A'),'Ï','I'), 'Ê','E'),'È','E'),'Ô','O'),'Ü','U'), 'Ç','C' ) LIKE ?" ;
-
-        String query = "SELECT * ,(select count(*) from CIS_COMPO_bdbm c where c.Code_CIS = m.Code_CIS) AS nb_molecule FROM CIS_bdpm a WHERE " +
+        String query = "SELECT * , (select count(*) from CIS_COMPO_bdpm c where c.Code_CIS = m.Code_CIS) AS nb_molecule FROM CIS_bdpm m WHERE " +
                 "denomination_du_medicament LIKE ? AND " +
-                " forme_pharmaceutique LIKE ? AND " +
-                "titulaires LIKE ? AND "  +
-                "Code_CIS IN (" + SQLSubstance + ") " +
+                "forme_pharmaceutique LIKE ? AND " +
+                "titulaires LIKE ? AND " +
+                "Code_CIS IN (" + SQLSubstance +")" +
                 finSQL;
-        //connexion a la base de donné
         Cursor cursor = db.rawQuery(query, selectionArgs.toArray(new String[0]));
-        return medicamentList;
+        if (cursor.moveToFirst()){
+            do {
+                int codeCIS= cursor.getInt(cursor.getColumnIndex("Code_CIS"));
+                String denominationMedicament = cursor.getString(cursor.getColumnIndex("denomination_du_medicament"));
+                String formePharmaceutique = cursor.getString(cursor.getColumnIndex("forme_pharmaceutique"));
+                String voies_administration = cursor.getString(cursor.getColumnIndex("Voies_dadministration"));
+                String titulaire_medicament = cursor.getString(cursor.getColumnIndex("titulairesMedicament"));
+                String statut_administratif = cursor.getString(cursor.getColumnIndex("Statut_administratif_de_IAMM"));
 
+
+                Medicament medicament = new Medicament();
+                medicament.setCodeCIS(codeCIS);
+                medicament.setDenomination(denominationMedicament);
+                medicament.setFormePharmaceutique(formePharmaceutique);
+                medicament.setVoiesAdmin(voies_administration);
+                medicament.setTitulaires(titulaire_medicament);
+                medicament.setStatutAdministratif(statut_administratif);
+
+                medicamentList.add(medicament);
+            }
+            while (cursor.moveToNext());
+        } else {
+            Toast.makeText(mycontext, "Aucun résultat", Toast.LENGTH_LONG).show();
+        }
+        cursor.close();
+        db.close();
+
+
+        return medicamentList;
     }
 
-    // fonction qui enlever les accents
     private String removeAccents(String input) {
         if (input == null) {
             return null;
@@ -181,4 +205,5 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(normalized).replaceAll("");
     }
+
 }

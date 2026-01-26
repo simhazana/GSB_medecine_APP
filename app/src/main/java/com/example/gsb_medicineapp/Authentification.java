@@ -14,7 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 import java.security.SecureRandom;
 
 public class Authentification extends AppCompatActivity {
-//Ici je déclare mes attributs en privé
+    //Ici je déclare mes attributs en privé
     private EditText codeV,codeS;
     private LinearLayout layoutCle;
     String myRandomKey;

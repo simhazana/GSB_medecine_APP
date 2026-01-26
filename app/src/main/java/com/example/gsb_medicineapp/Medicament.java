@@ -64,11 +64,11 @@ public class Medicament {
         this.statutAdministratif = statutAdministratif;
     }
 
-   /*public String getNbMolecule() {
-        return nbMolecule;
-    }
+    //public String getNbMolecule() {
+    //   return nbMolecule;
+    //}
 
-    public void setNbMolecule(String nbMolecule) {
-        this.nbMolecule = nbMolecule;
-    }*/
+    //public void setNbMolecule(String nbMolecule) {
+    //  this.nbMolecule = nbMolecule;
+    //}
 }
