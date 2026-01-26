@@ -13,8 +13,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public class DatabaseHelper extends SQLiteOpenHelper {
     private final Context mycontext;
@@ -137,4 +139,71 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.close();
         return voiesAdminList;
     }
+    // fonction permettant de lancer la recherche de médicaments selon les critères
+    public List<Medicament> searchMedicaments(String denomination_du_medicament,String forme_pharmaceutique,String titulaires , String denomination_substance,String voie_admin ){
+        List<Medicament> medicamentList = new ArrayList<>();
+        List<String> selectionArgs = new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        selectionArgs.add("%" + denomination_du_medicament + "%");
+        selectionArgs.add("%" + forme_pharmaceutique + "%");
+        selectionArgs.add("%" + titulaires + "%");
+        selectionArgs.add("%" + removeAccents(denomination_substance) + "%");
+        String finSQL = "";
+
+        if (!voie_admin.equals(PREMIERE_VOIE)){
+            finSQL = "AND voie_admin LIKE ? ";
+            selectionArgs.add(voie_admin);
+        }
+        String SQLSubstance = "SELECT CODE_CIS FROM CIS_COMPO_bdpm WHERE replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(upper(Denomination_substance), 'Â','A'),'Ä','A'),'À','A'),'É','E'),'Á','A'),'Ï','I'), 'Ê','E'),'È','E'),'Ô','O'),'Ü','U'), 'Ç','C' ) LIKE ?" ;
+        String query = "SELECT * , (select count(*) from CIS_COMPO_bdpm c where c.Code_CIS = m.Code_CIS) AS nb_molecule FROM CIS_bdpm m WHERE " +
+                "denomination_du_medicament LIKE ? AND " +
+                "forme_pharmaceutique LIKE ? AND " +
+                "titulaires LIKE ? AND " +
+                "Code_CIS IN (" + SQLSubstance +")" +
+                finSQL;
+        Cursor cursor = db.rawQuery(query, selectionArgs.toArray(new String[0]));
+        if (cursor.moveToFirst()){
+            do {
+                int codeCIS= cursor.getInt(cursor.getColumnIndex("Code_CIS"));
+                String denominationMedicament = cursor.getString(cursor.getColumnIndex("denomination_du_medicament"));
+                String formePharmaceutique = cursor.getString(cursor.getColumnIndex("forme_pharmaceutique"));
+                String voies_administration = cursor.getString(cursor.getColumnIndex("Voies_dadministration"));
+                String titulaire_medicament = cursor.getString(cursor.getColumnIndex("titulairesMedicament"));
+                String statut_administratif = cursor.getString(cursor.getColumnIndex("Statut_administratif_de_IAMM"));
+
+
+                Medicament medicament = new Medicament();
+                medicament.setCodeCIS(codeCIS);
+                medicament.setDenomination(denominationMedicament);
+                medicament.setFormePharmaceutique(formePharmaceutique);
+                medicament.setVoiesAdmin(voies_administration);
+                medicament.setTitulaires(titulaire_medicament);
+                medicament.setStatutAdministratif(statut_administratif);
+
+                medicamentList.add(medicament);
+            }
+            while (cursor.moveToNext());
+        } else {
+            Toast.makeText(mycontext, "Aucun résultat", Toast.LENGTH_LONG).show();
+        }
+        cursor.close();
+        db.close();
+
+
+        return medicamentList;
+    }
+
+    private String removeAccents(String input) {
+        if (input == null) {
+            return null;
+        }
+
+        // Normalisation en forme de décomposition (NFD)
+        String normalized = Normalizer.normalize(input, Normalizer.Form.NFD);
+
+        // Remplacement des caractères diacritiques
+        Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
+        return pattern.matcher(normalized).replaceAll("");
+    }
+
 }

@@ -1,83 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-xmlns:app="http://schemas.android.com/apk/res-auto"
-xmlns:tools="http://schemas.android.com/tools"
-android:id="@+id/main"
-android:layout_width="match_parent"
-android:layout_height="match_parent"
-tools:context=".MainActivity"
-android:orientation="vertical">
-
-
-<TextView
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Rechercher un médicament"
-    android:textAlignment="center"
-    android:textSize="24sp"
-    android:textColor="@color/black"
-    android:padding="16dp"
-    android:textStyle="bold"/>
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
 
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/edit_text_denomination_du_medicament"
-    android:hint="Dénomination_du_médicament" />
 
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/edit_text_forme_pharmaceutique"
-    android:hint="forme_pharmaceutique" />
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Rechercher un médicament"
+        android:textAlignment="center"
+        android:textSize="24sp"
+        android:textColor="@color/black"
+        android:padding="16dp"
+        android:textStyle="bold"/>
 
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/edit_text_titulaires"
-    android:hint="Titulaires" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_denomination_du_medicament"
+        android:hint="Dénomination_du_médicament" />
 
-<EditText
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:id="@+id/edit_text_substance"
-    android:hint="Dénomination_substance" />
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_forme_pharmaceutique"
+        android:hint="forme_pharmaceutique" />
 
-<Spinner
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_titulaires"
+        android:hint="Titulaires" />
 
-<Button
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="Rechercher"
-    android:backgroundTint="@color/blue"
-    android:id="@+id/btn_rechercher"/>
+    <EditText
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/edit_text_substance"
+        android:hint="Dénomination_substance" />
 
-<ListView
-    android:layout_width="match_parent"
-    android:layout_height="0dp"
-    android:layout_weight="1"/>
+    <Spinner
+        android:id="@+id/voieAdminSpinner"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
-<LinearLayout
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal" >
 
     <Button
-        android:layout_width="200dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:backgroundTint="#00BCD4"
-        android:text="Déconnexion" />
+        android:text="Rechercher"
+        android:backgroundTint="@color/blue"
+        android:id="@+id/btn_rechercher"/>
 
-    <Button
-        android:layout_width="200dp"
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:backgroundTint="#00BCD4"
-        android:text="Quitter" />
+        android:orientation="horizontal" >
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00BCD4"
+            android:text="Déconnexion" />
+
+        <Button
+            android:layout_width="200dp"
+            android:layout_height="wrap_content"
+            android:backgroundTint="#00BCD4"
+            android:text="Quitter" />
 
 
 
-</LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>
