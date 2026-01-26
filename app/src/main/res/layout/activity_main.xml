@@ -44,7 +44,6 @@ android:orientation="vertical">
     android:hint="Dénomination_substance" />
 
 <Spinner
-    android:id="@+id/voiAdminSpinner"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"/>
 
