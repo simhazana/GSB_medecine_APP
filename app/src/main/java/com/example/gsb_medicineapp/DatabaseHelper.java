@@ -26,6 +26,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static DatabaseHelper sInstance;
     private static final String PREMIERE_VOIE = "Selectionnez une voie d'administration";
 
+    //verfie qu'il y a un seul objet de databaseHelper
     public static synchronized DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new DatabaseHelper(context);
@@ -33,6 +34,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         return sInstance;
     }
 
+    //constructeur:
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.mycontext = context;
@@ -44,7 +46,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             copydatabase();
         }
     }
-
+//verifie si la bd existe
     private boolean checkdatabase() {
         File dbFile = new File(DATABASE_PATH + DATABASE_NAME);
         return dbFile.exists();
@@ -121,7 +123,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     // TODO: Implement methods to interact with the database, such as fetching distinct Voies_dadministration
     // and searching for medicaments based on criteria
-
+//recupere voie admin de la bd en la parcourant
     public List<String> getVoieAdministration(){
         List<String> voiesAdminList = new ArrayList<>();
         //cette ligne ci dessous permet la connexion avec la base de donnée
@@ -141,6 +143,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
     // fonction permettant de lancer la recherche de médicaments selon les critères
     public List<Medicament> searchMedicaments(String denomination_du_medicament,String forme_pharmaceutique,String titulaires , String denomination_substance,String voie_admin ){
+        //medicamentList contient les resultat
+        //selectionArgs:liste des arg pour la requete sql
         List<Medicament> medicamentList = new ArrayList<>();
         List<String> selectionArgs = new ArrayList<>();
         SQLiteDatabase db = this.getReadableDatabase();
@@ -148,12 +152,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         selectionArgs.add("%" + forme_pharmaceutique + "%");
         selectionArgs.add("%" + titulaires + "%");
         selectionArgs.add("%" + removeAccents(denomination_substance) + "%");
-        String finSQL = "";
 
-        if (!voie_admin.equals(PREMIERE_VOIE)){
+        //si utilisateur a choisi une voie specifique ajoute un critère supplémentaire
+        String finSQL = "";
+          if (!voie_admin.equals(PREMIERE_VOIE)){
             finSQL = "AND voie_admin LIKE ? ";
             selectionArgs.add(voie_admin);
-        }
+           }
+
         String SQLSubstance = "SELECT CODE_CIS FROM CIS_COMPO_bdpm WHERE replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(upper(Denomination_substance), 'Â','A'),'Ä','A'),'À','A'),'É','E'),'Á','A'),'Ï','I'), 'Ê','E'),'È','E'),'Ô','O'),'Ü','U'), 'Ç','C' ) LIKE ?" ;
         String query = "SELECT * , (select count(*) from CIS_COMPO_bdpm c where c.Code_CIS = m.Code_CIS) AS nb_molecule FROM CIS_bdpm m WHERE " +
                 "denomination_du_medicament LIKE ? AND " +
@@ -161,7 +167,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "titulaires LIKE ? AND " +
                 "Code_CIS IN (" + SQLSubstance +")" +
                 finSQL;
+        //rawquery:execute la requete. cursor:contient tt les resultats
         Cursor cursor = db.rawQuery(query, selectionArgs.toArray(new String[0]));
+
+        //parcourt resulta+ cree un objet Medicament pour chaque ligne
         if (cursor.moveToFirst()){
             do {
                 int codeCIS= cursor.getInt(cursor.getColumnIndex("Code_CIS"));

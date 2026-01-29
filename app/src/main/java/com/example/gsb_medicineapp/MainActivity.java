@@ -22,17 +22,17 @@ public class MainActivity extends AppCompatActivity {
     private DatabaseHelper dbHelper;
     private Spinner spinnerVoieAdmin;
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    @Override //redefinie une methode héritée
+    protected void onCreate(Bundle savedInstanceState) {//Bundle savedInstanceState :contient l’état précédent de l’activité
+        super.onCreate(savedInstanceState);// appel la version parente
+        setContentView(R.layout.activity_main);// fait appel au layout
 //         if (!isuserAuthentificated()){
 //             Intent authIntent = new Intent(this, Authentification.class);
 //             startActivity(authIntent);
 //             finish();
 //
 //         }
-        denomination = findViewById(R.id.edit_text_denomination_du_medicament);
+        denomination = findViewById(R.id.edit_text_denomination_du_medicament);//findby: chercheune vue grace au id
         forme = findViewById(R.id.edit_text_forme_pharmaceutique);
         titulaire = findViewById(R.id.edit_text_titulaires);
         substance = findViewById(R.id.edit_text_substance);
@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
         setupVoieAdminSpinner();
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) { //gere quand on clique sur un bouton
                 performSearch();
                 cacherClavier();
             }
@@ -50,13 +50,14 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
-
+//verifie si l'utilisateur et authentifié ou non
     private boolean isuserAuthentificated() {
-        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);//recupere nom du fichier de preference
         String userStatus = preferences.getString(KEY_USER_STATUS,"");
         return "authentification=OK".equals(userStatus);
     }
 
+    //recuper les critere de l'utilisateur et fait appel a la bd
     private void performSearch() {
         String denomination_du_medicament = denomination.getText().toString().trim();
         String forme_pharmaceutique = forme.getText().toString().trim();
@@ -80,8 +81,10 @@ public class MainActivity extends AppCompatActivity {
             imm.hideSoftInputFromWindow(vueCourante.getWindowToken(), 0);
         }
     }
+    //initialise un spinner:list deroulante
     private void setupVoieAdminSpinner(){
         List<String> voieAdminList= dbHelper.getVoieAdministration();
+        //arrayadapter pont entre les donnée et le spinner
         ArrayAdapter<String> spinnerAdapter= new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,voieAdminList);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerVoieAdmin.setAdapter(spinnerAdapter);
