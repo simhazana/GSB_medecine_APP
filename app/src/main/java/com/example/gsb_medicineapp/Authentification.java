@@ -1,15 +1,14 @@
 package com.example.gsb_medicineapp;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 import java.security.SecureRandom;
 
@@ -18,6 +17,9 @@ public class Authentification extends AppCompatActivity {
     private EditText codeV,codeS;
     private LinearLayout layoutCle;
     String myRandomKey;
+    private static final String PREF_NAME = "UserPrefs"; //fichier stocker en local qui donne le statut si qlq1 connecte
+    private static final String KEY_USER_STATUS = "userStatus"; // statut du visiteur
+    private static final String SECURETOKEN = "Euroforma"; // token qui permt la conncetion securise
 
     @Override
     //constructeur de la classe
@@ -31,8 +33,30 @@ public class Authentification extends AppCompatActivity {
     } //ici se ferme le constructeur
     public void afficherLayout(View v){
         layoutCle.setVisibility(View.VISIBLE);
-        String codeVisiteur =codeV.getText().toString();
         myRandomKey = genererChaineAleatoire(5);
+        //Log.d("APPLI","myKey="+myRandomKey);
+        String codeVisiteur =codeV.getText().toString();
+        SendKeyTask sendKeyTask=new SendKeyTask(getApplicationContext());
+        sendKeyTask.execute(codeVisiteur,myRandomKey,SECURETOKEN);
+    }
+    private void afficherMessage(string msg){
+        Toast.makeText(this,msg, Toast.LENGTH_LONG).show();
+    }
+
+    public void comparerChaine(View v){
+        String codeSecurite =codeS.getText().toString().trim();
+        if (myRandomKey.equals(codeSecurite)){
+            afficherMessage("Connexion validé");
+            setUserStatus("authentification=OK");
+            Intent authIntent = new Intent(this, MainActivity.class);//redirige vers main activity
+            startActivity(authIntent);
+            finish();
+
+        }else{
+            afficherMessage("La clé de sécurité saisie incorrect");
+            setUserStatus("authentification=KO");
+        }
+
     }
     private String genererChaineAleatoire(int longueur){
         String caracteresPermis = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -47,6 +71,13 @@ public class Authentification extends AppCompatActivity {
         }
 
         return chaineAleatoire.toString();
+    }
+/// / a revoir
+    public void setUserStatus(String status){
+        SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+        SharedPreferences.Editor editor=preferences.edit();
+        editor.putString(KEY_USER_STATUS,status);
+        editor.apply();
     }
     //ici je déclare mes méthodes
 }

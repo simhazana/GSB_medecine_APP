@@ -1,6 +1,7 @@
 package com.example.gsb_medicineapp;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.View;
@@ -26,12 +27,13 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {//Bundle savedInstanceState :contient l’état précédent de l’activité
         super.onCreate(savedInstanceState);// appel la version parente
         setContentView(R.layout.activity_main);// fait appel au layout
-//         if (!isuserAuthentificated()){
-//             Intent authIntent = new Intent(this, Authentification.class);
-//             startActivity(authIntent);
-//             finish();
-//
-//         }
+
+         if (!isuserAuthentificated()){
+             Intent authIntent = new Intent(this, Authentification.class);//redirige vers une page de connection
+             startActivity(authIntent);
+             finish();
+
+         }
         denomination = findViewById(R.id.edit_text_denomination_du_medicament);//findby: chercheune vue grace au id
         forme = findViewById(R.id.edit_text_forme_pharmaceutique);
         titulaire = findViewById(R.id.edit_text_titulaires);
