@@ -17,7 +17,7 @@ public class Authentification extends AppCompatActivity {
     private EditText codeV,codeS;
     private LinearLayout layoutCle;
     String myRandomKey;
-    private static final String PREF_NAME = "UserPrefs"; //fichier stocker en local qui donne le statut si qlq1 connecte
+    private static final String PREF_NAME = "userPrefs"; //fichier stocker en local qui donne le statut si qlq1 connecte
     private static final String KEY_USER_STATUS = "userStatus"; // statut du visiteur
     private static final String SECURETOKEN = "Euroforma"; // token qui permt la conncetion securise
 
@@ -39,7 +39,7 @@ public class Authentification extends AppCompatActivity {
         SendKeyTask sendKeyTask=new SendKeyTask(getApplicationContext());
         sendKeyTask.execute(codeVisiteur,myRandomKey,SECURETOKEN);
     }
-    private void afficherMessage(string msg){
+    private void afficherMessage(String msg){
         Toast.makeText(this,msg, Toast.LENGTH_LONG).show();
     }
 
@@ -72,7 +72,7 @@ public class Authentification extends AppCompatActivity {
 
         return chaineAleatoire.toString();
     }
-/// / a revoir
+
     public void setUserStatus(String status){
         SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
         SharedPreferences.Editor editor=preferences.edit();

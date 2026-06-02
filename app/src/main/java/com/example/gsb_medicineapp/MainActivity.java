@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
              Intent authIntent = new Intent(this, Authentification.class);//redirige vers une page de connection
              startActivity(authIntent);
              finish();
-
          }
         denomination = findViewById(R.id.edit_text_denomination_du_medicament);//findby: chercheune vue grace au id
         forme = findViewById(R.id.edit_text_forme_pharmaceutique);
@@ -55,40 +54,58 @@ public class MainActivity extends AppCompatActivity {
 //verifie si l'utilisateur et authentifié ou non
     private boolean isuserAuthentificated() {
         SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);//recupere nom du fichier de preference
-        String userStatus = preferences.getString(KEY_USER_STATUS,"");
+        String userStatus = preferences.getString(KEY_USER_STATUS, "");
         return "authentification=OK".equals(userStatus);
     }
 
-    //recuper les critere de l'utilisateur et fait appel a la bd
-    private void performSearch() {
-        String denomination_du_medicament = denomination.getText().toString().trim();
-        String forme_pharmaceutique = forme.getText().toString().trim();
-        String titulaires = titulaire.getText().toString().trim();
-        String denomination_substance = substance.getText().toString().trim();
-        String voie_admin = spinnerVoieAdmin.getSelectedItem().toString();
-        List<Medicament>searchResults= dbHelper.searchMedicaments(denomination_du_medicament,forme_pharmaceutique,titulaires,denomination_substance,voie_admin);
-        // ici faire appel à la fonction search medicament en mettant en paramètres les saisies utilisateurs récupérées.
-    }
-
-    private void cacherClavier() {
-        // Obtenez le gestionnaire de fenêtre
-        InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-
-        // Obtenez la vue actuellement focalisée, qui devrait être la vue avec le clavier
-        View vueCourante = getCurrentFocus();
-
-        // Vérifiez si la vue est non nulle pour éviter les erreurs
-        if (vueCourante != null) {
-            // Masquez le clavier
-            imm.hideSoftInputFromWindow(vueCourante.getWindowToken(), 0);
+        //recuper les critere de l'utilisateur et fait appel a la bd
+        private void performSearch() {
+            String denomination_du_medicament = denomination.getText().toString().trim();
+            String forme_pharmaceutique = forme.getText().toString().trim();
+            String titulaires = titulaire.getText().toString().trim();
+            String denomination_substance = substance.getText().toString().trim();
+            String voie_admin = spinnerVoieAdmin.getSelectedItem().toString();
+            List<Medicament> searchResults = dbHelper.searchMedicaments(denomination_du_medicament, forme_pharmaceutique, titulaires, denomination_substance, voie_admin);
+            // ici faire appel à la fonction search medicament en mettant en paramètres les saisies utilisateurs récupérées.
         }
+
+        private void cacherClavier() {
+            // Obtenez le gestionnaire de fenêtre
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+
+            // Obtenez la vue actuellement focalisée, qui devrait être la vue avec le clavier
+            View vueCourante = getCurrentFocus();
+
+            // Vérifiez si la vue est non nulle pour éviter les erreurs
+            if (vueCourante != null) {
+                // Masquez le clavier
+                imm.hideSoftInputFromWindow(vueCourante.getWindowToken(), 0);
+            }
+        }
+
+        public void setUserStatus (String status){
+            SharedPreferences preferences = getSharedPreferences(PREF_NAME, MODE_PRIVATE);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString(KEY_USER_STATUS, status);
+            editor.apply();
+
+        }
+        public void deconnexion (View v){
+            setUserStatus("authentification=KO");
+            Intent authIntent = new Intent(this, MainActivity.class);//redirige vers main activity
+            startActivity(authIntent);
+            finish();
+        }
+
+        //initialise un spinner:list deroulante
+        private void setupVoieAdminSpinner () {
+            List<String> voieAdminList = dbHelper.getVoieAdministration();
+            //arrayadapter pont entre les donnée et le spinner
+            ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, voieAdminList);
+            spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+            spinnerVoieAdmin.setAdapter(spinnerAdapter);
+        }
+
+
+
     }
-    //initialise un spinner:list deroulante
-    private void setupVoieAdminSpinner(){
-        List<String> voieAdminList= dbHelper.getVoieAdministration();
-        //arrayadapter pont entre les donnée et le spinner
-        ArrayAdapter<String> spinnerAdapter= new ArrayAdapter<>(this, android.R.layout.simple_spinner_item,voieAdminList);
-        spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerVoieAdmin.setAdapter(spinnerAdapter);
-    }
-}
