@@ -27,6 +27,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String PREMIERE_VOIE = "Selectionnez une voie d'administration";
 
     //verfie qu'il y a un seul objet de databaseHelper
+    //declacher qd on a besoin de la bd
     public static synchronized DatabaseHelper getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new DatabaseHelper(context);
@@ -35,6 +36,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     //constructeur:
+    //configure les chemin d'acces
+    //DATABASE_PATH chemin de la bd
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.mycontext = context;
@@ -126,10 +129,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 //recupere voie admin de la bd en la parcourant
     public List<String> getVoieAdministration(){
         List<String> voiesAdminList = new ArrayList<>();
-        //cette ligne ci dessous permet la connexion avec la base de donnée
-        SQLiteDatabase db = this.getReadableDatabase();
+        SQLiteDatabase db = this.getReadableDatabase(); //permet la connexion avec la base de donnée
+        //cursor,pointeur virtuel lire requete sql
         Cursor cursor = db.rawQuery("SELECT DISTINCT UPPER (Voies_dadministration) FROM CIS_bdpm WHERE Voies_dadministration NOT LIKE '%;%' ORDER BY Voies_dadministration",null);
-        voiesAdminList.add(PREMIERE_VOIE);
+        voiesAdminList.add(PREMIERE_VOIE);//ajoute dans une liste java
+        //parcourt la list
         if (cursor.moveToFirst()){
             do {
                 String voieAdmin = cursor.getString(0).toString();
@@ -137,7 +141,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             }
             while (cursor.moveToNext());
         }
-        cursor.close();
+        cursor.close(); // ferme la connexion
         db.close();
         return voiesAdminList;
     }
@@ -156,7 +160,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         //si utilisateur a choisi une voie specifique ajoute un critère supplémentaire
         String finSQL = "";
           if (!voie_admin.equals(PREMIERE_VOIE)){
-            finSQL = "AND voie_admin LIKE ? ";
+            finSQL = "AND Voies_dadministration LIKE ? ";
             selectionArgs.add(voie_admin);
            }
 
@@ -168,17 +172,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "Code_CIS IN (" + SQLSubstance +")" +
                 finSQL;
         //rawquery:execute la requete. cursor:contient tt les resultats
+        //curso colonne ligne par ligne et prochaine colonne
         Cursor cursor = db.rawQuery(query, selectionArgs.toArray(new String[0]));
 
-        //parcourt resulta+ cree un objet Medicament pour chaque ligne
+        //parcourt resultat+ cree un objet Medicament pour chaque ligne
         if (cursor.moveToFirst()){
             do {
-                int codeCIS= cursor.getInt(cursor.getColumnIndex("Code_CIS"));
-                String denominationMedicament = cursor.getString(cursor.getColumnIndex("denomination_du_medicament"));
-                String formePharmaceutique = cursor.getString(cursor.getColumnIndex("forme_pharmaceutique"));
-                String voies_administration = cursor.getString(cursor.getColumnIndex("Voies_dadministration"));
-                String titulaire_medicament = cursor.getString(cursor.getColumnIndex("titulairesMedicament"));
-                String statut_administratif = cursor.getString(cursor.getColumnIndex("Statut_administratif_de_IAMM"));
+                int codeCIS= cursor.getInt(cursor.getColumnIndexOrThrow("Code_CIS"));
+                String denominationMedicament = cursor.getString(cursor.getColumnIndexOrThrow("Denomination_du_medicament"));
+                String formePharmaceutique = cursor.getString(cursor.getColumnIndexOrThrow("Forme_pharmaceutique"));
+                String voies_administration = cursor.getString(cursor.getColumnIndexOrThrow("Voies_dadministration"));
+                String titulaire_medicament = cursor.getString(cursor.getColumnIndexOrThrow("Titulaires"));
+                String statut_administratif = cursor.getString(cursor.getColumnIndexOrThrow("Statut_administratif_de_lAMM"));
 
 
                 Medicament medicament = new Medicament();
@@ -213,6 +218,42 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // Remplacement des caractères diacritiques
         Pattern pattern = Pattern.compile("\\p{InCombiningDiacriticalMarks}+");
         return pattern.matcher(normalized).replaceAll("");
+    }
+    public List<String> getCompositionMedicament(int codeCIS){
+        List<String> compositionList= new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT * FROM CIS_COMPO_bdpm WHERE Code_CIS = ?", new String[]{String.valueOf(codeCIS)});
+        int i=0;
+        if (cursor.moveToFirst()){
+            do {
+                i++;
+                String dosage = cursor.getString(cursor.getColumnIndexOrThrow("Dosage_substance"));
+                String substance = cursor.getString(cursor.getColumnIndexOrThrow("Denomination_substance"));
+                compositionList.add(i+":"+substance+"("+ dosage +")");
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close(); // ferme la connexion
+        db.close();
+        return compositionList;
+    }
+
+    public List<String> getPresentationMedicament(int codeCIS){
+        List<String> presentationList= new ArrayList<>();
+        SQLiteDatabase db = this.getReadableDatabase();
+        Cursor cursor = db.rawQuery("SELECT Libelle_presentation FROM CIS_CIP_bdpm WHERE Code_CIS = ?", new String[]{String.valueOf(codeCIS)});
+        int i=0;
+        if (cursor.moveToFirst()){
+            do {
+                i++;
+                String libellePresentation = cursor.getString(cursor.getColumnIndexOrThrow("Libelle_presentation"));
+                presentationList.add(i+":"+libellePresentation);
+            }
+            while (cursor.moveToNext());
+        }
+        cursor.close(); // ferme la connexion
+        db.close();
+        return presentationList;
     }
 
 }

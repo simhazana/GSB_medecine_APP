@@ -1,7 +1,8 @@
 package com.example.gsb_medicineapp;
 
 public class Medicament {
-    private int codeCIS;
+    //Déclarés en private,aucune autre classe (ni MainActivity, ni DatabaseHelper) n'a le droit de faire un point .
+    private int codeCIS; //identifiant unique du médicament
     private String denomination;
     private String formePharmaceutique;
     private String voiesAdmin;
